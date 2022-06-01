@@ -1,0 +1,55 @@
+{% extends 'Default.html' %}
+
+<!--  get_flashed_message  -->
+
+{% block title %}
+    Dashboard Admin
+{% endblock %}
+
+{% block content %}
+
+{% if inProgressAccounts %}
+<div class="p-5">
+
+    <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">FirstN</th>
+            <th scope="col">LastN</th>
+            <th scope="col">Email</th>
+            <th scope="col">Department</th>
+            <th scope="col">Job</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Username</th>
+            <th scope="col">ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for account in inProgressAccounts %}
+          <tr>
+            <th>{{account.name}}</th>
+            <td>{{account.lastName}}</td>
+            <td>{{account.email_adress}}</td>
+            <td>{{account.departement}}</td>
+            <td>{{account.poste}}</td>
+            <td>{{account.phone}}</td>
+            <td>{{account.username}}</td>
+            <td>
+                <a href="{{url_for('direcMakeDecision',decision = 'accept',idDirecteur = account.id_directeur)}}" class="btn btn-success">Accept</a>
+                <a href="{{url_for('direcMakeDecision',decision = 'refuse',idDirecteur = account.id_directeur)}}" class="btn btn-danger">refuse</a>
+            </td>
+          </tr>
+          {%endfor%}
+        
+        </tbody>
+      </table>
+{%endif%}
+
+</div>
+
+
+{% endblock %}
+
+
+
+

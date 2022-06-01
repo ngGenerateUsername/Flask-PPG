@@ -1,0 +1,30 @@
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField,TelField
+from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
+from App.models import directeur
+
+class RegisterForm(FlaskForm):
+    def validate_username(self, username_to_check):
+        user = directeur.query.filter_by(username=username_to_check.data).first()
+        if user:
+            raise ValidationError("Username already exists! Please try a different username")
+
+    def validate_email_adress(self, email_adress_to_check):
+        email_adress = directeur.query.filter_by(email_adress=email_adress_to_check.data).first()
+        if email_adress:
+            raise ValidationError("email_adress already exists! Please try a different email_adress")
+    username = StringField(label='User Name:', validators=[Length(min=2, max=30), DataRequired(),validate_username])
+    nom = StringField(label='Name:', validators=[Length(min=2, max=30), DataRequired()])
+    lastName = StringField(label='lastName:', validators=[Length(min=2, max=30), DataRequired()])
+    phone = TelField(label='Phone', validators=[DataRequired()])
+    departement = StringField(label='Departement:', validators=[DataRequired()])
+    poste = StringField(label='poste:', validators=[DataRequired()])
+    email_adress = StringField(label='Email Address:', validators=[Email(), DataRequired(),validate_email_adress])
+    password1 = PasswordField(label='Password:', validators=[Length(min=6), DataRequired()])
+    password2 = PasswordField(label='Confirm Password:', validators=[EqualTo('password1'), DataRequired()])
+    submit = SubmitField(label='Create Account')
+
+class loginForm(FlaskForm):
+    username = StringField(label='User Name', validators=[DataRequired()])
+    password = PasswordField(label='Password', validators=[DataRequired()])
+    submit = SubmitField(label='Sign In')
