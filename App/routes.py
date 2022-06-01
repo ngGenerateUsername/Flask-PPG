@@ -119,7 +119,7 @@ def logout_page():
     if(session.get('user_type') == 'admin'):
         logout_user()
         flash("You have been logged out!", category='info')
-        session.pop('user_type') if session.get('user_type') != None else None
+        if session.get('user_type') != None : session.pop('user_type') 
         return redirect(url_for("login_admin"))
     else:
         logout_user()
