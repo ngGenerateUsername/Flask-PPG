@@ -21,6 +21,7 @@ def login_direc():
                 return  render_template('directeur/Login_direc.html', form=form)
             login_user(attempted_user)
             session['user_type'] = 'directeur'
+            session['selected_projetc_id'] = attempted_user.Projects[0].id
             flash(f'Success! Your are loged in as: {attempted_user.username} ', category='success')
             return redirect(url_for('Dashboard_direc'))
         else:
@@ -57,15 +58,34 @@ def register_direc():
 @app.route('/dashboard')
 @login_required
 def Dashboard_direc():
+    #bug sooner i'll fixe it
     if session.get('user_type') == 'admin':
         logout_user()
         session.pop('user_type') if session.get('user_type') != None else None
         return redirect(url_for('login_direc'))
-    return render_template('directeur/Dashboard_direc.html')
+    selectedProjectId = session.get('selected_projetc_id')
+    #fetch users Number
+    usersNumber = employee.query.filter_by(projet_id = selectedProjectId).count()
+    #fetch nombre Tasks Totale
+    totalTasks = task.query.filter_by(projet_id = selectedProjectId).count()
+    #fetch nombre task valide
+    validTasks = task.query.filter_by(projet_id = selectedProjectId,status=1).count()
+    #fetch nombre task in progress(not valid yet)
+    inValidTasks = task.query.filter_by(projet_id = selectedProjectId,status=0).count()
+    #fetch list of employees
+    employeesList = employee.query.filter_by(projet_id = selectedProjectId).all()
+
+    return render_template('directeur/Dashboard_direc.html',usersNumber = usersNumber,totalTasks=totalTasks,validTasks = validTasks,inValidTasks = inValidTasks,employeesList=employeesList)
+
+@app.route('/space/<id>')
+@login_required
+def changeProjectSpace(id):
+    # sooner i'll add middleware golabaly
+    session['selected_projetc_id'] = int(id)
+    return redirect(url_for('Dashboard_direc'))
 
 
-
-
+#-------------------------------------------------------------------END OF DIRECTOR ROUTES
 
 
 #Admin routes
@@ -119,7 +139,7 @@ def logout_page():
     if(session.get('user_type') == 'admin'):
         logout_user()
         flash("You have been logged out!", category='info')
-        if session.get('user_type') != None : session.pop('user_type') 
+        if session.get('user_type') != None : session.pop('user_type')
         return redirect(url_for("login_admin"))
     else:
         logout_user()
