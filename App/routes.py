@@ -36,7 +36,7 @@ def register_direc():
     form = RegisterForm()
     if form.validate_on_submit():
         user_to_create = directeur(email_adress=form.email_adress.data,
-                                  name = form.nom.data,
+                                  firstName = form.nom.data,
                                   lastName = form.lastName.data,
                                   phone = form.phone.data,
                                   departement = form.phone.data,
@@ -103,7 +103,7 @@ def Dashboard_admin():
 
 @app.route('/admin/<decision>/<idDirecteur>/')
 def direcMakeDecision(decision,idDirecteur):
-    dirctrToUpdateState = directeur.query.filter_by(id_directeur = idDirecteur ).first()
+    dirctrToUpdateState = directeur.query.filter_by(id = idDirecteur ).first()
     if decision == 'accept':
        dirctrToUpdateState.state = 1
        db.session.commit()

@@ -13,7 +13,7 @@ def load_user(user_id):
 
 
 class admin(db.Model,UserMixin):
-    id_admin = db.Column(db.Integer(), primary_key=True,autoincrement=True)
+    id = db.Column(db.Integer(), primary_key=True,autoincrement=True)
     username = db.Column(db.String(length=30), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
 
@@ -22,7 +22,7 @@ class admin(db.Model,UserMixin):
         self.password = password
 
     def get_id(self):
-        return self.id_admin
+        return self.id
     @property
     def password(self):
         return self.password
@@ -37,20 +37,20 @@ class admin(db.Model,UserMixin):
 
 
 class directeur(db.Model,UserMixin):
-    id_directeur = db.Column(db.Integer(), primary_key=True,autoincrement=True)
-    name = db.Column(db.String(length=30), nullable=True)
+    id = db.Column(db.Integer(), primary_key=True,autoincrement=True)
+    firstName = db.Column(db.String(length=30), nullable=True)
     lastName = db.Column(db.String(length=30), nullable=True)
     phone = db.Column(db.Integer())
     email_adress = db.Column(db.String(length=50), nullable=False, unique=True)
     username = db.Column(db.String(length=30), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
     departement = db.Column(db.String(length=30), nullable=True)
-    poste = db.Column(db.String(length=30), nullable=True)
+    poste = db.Column(db.String(length=200), nullable=True)
     state = db.Column(db.Integer(),default=0)
-    Projects = db.relationship('projet', backref='owned_projects', lazy=True)
+    Projects = db.relationship('projet', backref='owned_projects',cascade="all,delete" ,lazy=True)
 
     def get_id(self):
-        return self.id_directeur
+        return self.id
 
     def get_state(self):
         return self.state
@@ -66,15 +66,15 @@ class directeur(db.Model,UserMixin):
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
 
 class employee(db.Model):
-    id_employee = db.Column(db.Integer(), primary_key=True,autoincrement=True)
-    name = db.Column(db.String(length=30), nullable=True)
-    prenom = db.Column(db.String(length=30), nullable=True)
+    id = db.Column(db.Integer(), primary_key=True,autoincrement=True)
+    firstName = db.Column(db.String(length=30), nullable=True)
+    lastName = db.Column(db.String(length=30), nullable=True)
     phone = db.Column(db.Integer())
-    poste = db.Column(db.String(length=30), nullable=False)
+    poste = db.Column(db.String(length=200), nullable=False)
     email_adress = db.Column(db.String(length=50), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
     projet_id = db.Column(db.Integer(), db.ForeignKey('projet.id'))
-    Tasks = db.relationship('task', backref='tasks_to_do', lazy=True)
+    Tasks = db.relationship('task', backref='tasks_to_do',cascade="all,delete", lazy=True)
 
     @property
     def password(self):
@@ -89,15 +89,15 @@ class projet(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     projet_title = db.Column(db.String(length=30), nullable=False)
     projet_description = db.Column(db.String(length=1024), nullable=False)
-    direct_id = db.Column(db.Integer(), db.ForeignKey('directeur.id_directeur'))
+    direct_id = db.Column(db.Integer(), db.ForeignKey('directeur.id'))
     Employees = db.relationship('employee', backref='employees', lazy=True)
-    tasks = db.relationship('task', backref='tasks', lazy=True)
+    tasks = db.relationship('task', backref='tasks',cascade="all,delete", lazy=True)
 
 
 class task(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     task_title = db.Column(db.String(length=30), nullable=False)
     task_description = db.Column(db.String(length=1024), nullable=False)
-    status = db.Column(db.String(length=30))
-    employee_id = db.Column(db.Integer(), db.ForeignKey('employee.id_employee'))
+    status = db.Column(db.Integer(),default=0)
+    employee_id = db.Column(db.Integer(), db.ForeignKey('employee.id'))
     projet_id = db.Column(db.Integer(), db.ForeignKey('projet.id'))
