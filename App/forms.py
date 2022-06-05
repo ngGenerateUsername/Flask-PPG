@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField,TelField
+from wtforms import StringField, PasswordField, SubmitField,TelField,TextAreaField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
 from App.models import directeur
 
@@ -28,3 +28,9 @@ class loginForm(FlaskForm):
     username = StringField(label='User Name', validators=[DataRequired()])
     password = PasswordField(label='Password', validators=[DataRequired()])
     submit = SubmitField(label='Sign In')
+
+
+class AddProjectForm(FlaskForm):
+    project_title=StringField(label='Project Title',validators=[DataRequired()])
+    project_description=TextAreaField(label='Project Description',validators=[DataRequired()])
+    submit = SubmitField(label='Add project')

@@ -44,7 +44,7 @@ class directeur(db.Model,UserMixin):
     email_adress = db.Column(db.String(length=50), nullable=False, unique=True)
     username = db.Column(db.String(length=30), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
-    departement = db.Column(db.String(length=30), nullable=True)
+    departement = db.Column(db.String(length=200), nullable=True)
     poste = db.Column(db.String(length=200), nullable=True)
     state = db.Column(db.Integer(),default=0)
     Projects = db.relationship('projet', backref='owned_projects',cascade="all,delete" ,lazy=True)
@@ -87,7 +87,7 @@ class employee(db.Model):
 
 class projet(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    projet_title = db.Column(db.String(length=30), nullable=False)
+    projet_title = db.Column(db.String(length=200), nullable=False)
     projet_description = db.Column(db.String(length=1024), nullable=False)
     direct_id = db.Column(db.Integer(), db.ForeignKey('directeur.id'))
     Employees = db.relationship('employee', backref='employees', lazy=True)
@@ -96,7 +96,7 @@ class projet(db.Model):
 
 class task(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    task_title = db.Column(db.String(length=30), nullable=False)
+    task_title = db.Column(db.String(length=200), nullable=False)
     task_description = db.Column(db.String(length=1024), nullable=False)
     status = db.Column(db.Integer(),default=0)
     employee_id = db.Column(db.Integer(), db.ForeignKey('employee.id'))

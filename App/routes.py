@@ -1,7 +1,7 @@
 from App import app, db
-from App.forms import loginForm, RegisterForm
+from App.forms import loginForm, RegisterForm,AddProjectForm
 from flask import render_template, redirect, url_for, flash, request
-from App.models import task, admin, directeur, employee
+from App.models import task, admin, directeur, employee,projet
 from flask_login import login_user, logout_user, login_required, current_user
 from flask import session
 
@@ -21,7 +21,8 @@ def login_direc():
                 return  render_template('directeur/Login_direc.html', form=form)
             login_user(attempted_user)
             session['user_type'] = 'directeur'
-            session['selected_projetc_id'] = attempted_user.Projects[0].id
+            if attempted_user.Projects:
+                session['selected_projetc_id'] = attempted_user.Projects[0].id
             flash(f'Success! Your are loged in as: {attempted_user.username} ', category='success')
             return redirect(url_for('Dashboard_direc'))
         else:
@@ -55,7 +56,7 @@ def register_direc():
     return render_template('directeur/Register_direc.html', form=form)
 
 
-@app.route('/dashboard')
+@app.route('/dashboard',methods=['GET', 'POST'])
 @login_required
 def Dashboard_direc():
     #bug sooner i'll fixe it
@@ -64,18 +65,30 @@ def Dashboard_direc():
         session.pop('user_type') if session.get('user_type') != None else None
         return redirect(url_for('login_direc'))
     selectedProjectId = session.get('selected_projetc_id')
-    #fetch users Number
-    usersNumber = employee.query.filter_by(projet_id = selectedProjectId).count()
-    #fetch nombre Tasks Totale
-    totalTasks = task.query.filter_by(projet_id = selectedProjectId).count()
-    #fetch nombre task valide
-    validTasks = task.query.filter_by(projet_id = selectedProjectId,status=1).count()
-    #fetch nombre task in progress(not valid yet)
-    inValidTasks = task.query.filter_by(projet_id = selectedProjectId,status=0).count()
-    #fetch list of employees
-    employeesList = employee.query.filter_by(projet_id = selectedProjectId).all()
+    # fetch users Number
+    usersNumber = employee.query.filter_by(projet_id=selectedProjectId).count()
+    # fetch nombre Tasks Totale
+    totalTasks = task.query.filter_by(projet_id=selectedProjectId).count()
+    # fetch nombre task valide
+    validTasks = task.query.filter_by(projet_id=selectedProjectId, status=1).count()
+    # fetch nombre task in progress(not valid yet)
+    inValidTasks = task.query.filter_by(projet_id=selectedProjectId, status=0).count()
+    # fetch list of employees
+    employeesList = employee.query.filter_by(projet_id=selectedProjectId).all()
+    form=AddProjectForm()
+    if form.validate_on_submit():
+        project=projet.query.filter_by(projet_title=form.project_title.data).first()
+        if project:
+            flash(f'the project {project} is already created')
+        else:
+            project_to_create=projet(projet_title=form.project_title.data,
+                                    projet_description=form.project_description.data,
+                                    direct_id=current_user.id)
+            db.session.add(project_to_create)
+            db.session.commit()
+            flash('the project was successfully added')
 
-    return render_template('directeur/Dashboard_direc.html',usersNumber = usersNumber,totalTasks=totalTasks,validTasks = validTasks,inValidTasks = inValidTasks,employeesList=employeesList)
+    return render_template('directeur/Dashboard_direc.html',form=form,usersNumber = usersNumber,totalTasks=totalTasks,validTasks = validTasks,inValidTasks = inValidTasks,employeesList=employeesList)
 
 @app.route('/space/<id>')
 @login_required
@@ -96,7 +109,6 @@ def login_admin():
         return redirect(url_for('Dashboard_admin'))
     form = loginForm()
     if form.validate_on_submit():
-
         ad = admin.query.filter_by(username=form.username.data).first()
         if ad and ad.check_password_correction(attempted_password=form.password.data):
             login_user(ad)
@@ -120,6 +132,15 @@ def Dashboard_admin():
     inProgressAccounts = directeur.query.filter_by(state = 0).all()
     return render_template('admin/Dashboard_admin.html',inProgressAccounts = inProgressAccounts)
 
+@app.route('/admin/DeleteDirecteur')#***************
+@login_required
+def Delete_directeur():
+    if session.get('user_type') == 'directeur':
+        logout_user()
+        session.pop('user_type')
+    Directeur_accounts=directeur.query.filter_by(state=1).all()
+    return render_template('admin/Delete_direc.html',Directeur_accounts=Directeur_accounts)
+
 
 @app.route('/admin/<decision>/<idDirecteur>/')
 def direcMakeDecision(decision,idDirecteur):
@@ -131,7 +152,7 @@ def direcMakeDecision(decision,idDirecteur):
        db.session.delete(dirctrToUpdateState)
        db.session.commit()
     return redirect(url_for('Dashboard_admin'))
-    
+
 
 
 @app.route('/logout')

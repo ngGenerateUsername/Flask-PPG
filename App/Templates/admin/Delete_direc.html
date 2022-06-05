@@ -20,7 +20,7 @@
       <li class="nav-item">
         <a class="nav-link" href="{{url_for('Delete_directeur')}}">Directeurs</a>
       </li>
-        <div class="d-flex justify-content-end ">
+        <div class="d-flex justify-content-end">
             <li class="nav-item">
                 <a class="nav-link disabled" href="#">Welcome, Admin</a>
             </li>
@@ -34,7 +34,7 @@
   </div>
 </nav>
 
-{% if inProgressAccounts %}
+{% if Directeur_accounts %}
 <div class="p-5">
 
     <table class="table">
@@ -51,7 +51,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for account in inProgressAccounts %}
+        {% for account in Directeur_accounts %}
           <tr>
             <th>{{account.firstName}}</th>
             <td>{{account.lastName}}</td>
@@ -61,21 +61,14 @@
             <td>{{account.phone}}</td>
             <td>{{account.username}}</td>
             <td>
-                <a href="{{url_for('direcMakeDecision',decision = 'accept',idDirecteur = account.id)}}" class="btn btn-success">Accept</a>
-                <a href="{{url_for('direcMakeDecision',decision = 'refuse',idDirecteur = account.id)}}" class="btn btn-danger">refuse</a>
-            </td>
+               <a href="{{url_for('direcMakeDecision',decision = 'refuse',idDirecteur = account.id)}}" class="btn btn-success">Delete Account</a>
+         </td>
           </tr>
           {%endfor%}
-        
+
         </tbody>
       </table>
 {%endif%}
 
 </div>
-
-
 {% endblock %}
-
-
-
-
