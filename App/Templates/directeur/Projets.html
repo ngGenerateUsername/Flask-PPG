@@ -48,7 +48,24 @@ Projet
                 <td>{{loop.index}}</td>
                 <td>{{projet.projet_title}}</td>
                 <td>{{projet.projet_description}}</td>
-                <td><a href="{{url_for('actionProjet',name='delete',id=projet.id)}}" class="btn btn-warning">Delete</a></td>
+                <td><a  class="btn btn-danger" data-toggle="modal" data-target="{{'#modale'+loop.index|string}}">Delete</a></td>
+
+                <div class="modal fade" tabindex="-1" role="dialog" id="{{'modale'+loop.index|string}}">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title text-center mt-4" style="font-size: 18; font-weight:bold">CONFIRAMTION</h5>
+                        </div>
+                        <div class="modal-body">
+                          <p>Are you sure you want to delete : <strong>{{projet.projet_title}} </strong> </p>
+                        </div>
+                        <div class="modal-footer">
+                          <a  href="{{url_for('actionProjet',name='delete',id=projet.id)}}" class="btn btn-warning">YES</a>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
             </tr>
             {% endfor %}
 
