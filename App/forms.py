@@ -34,3 +34,4 @@ class AddProjectForm(FlaskForm):
     project_title=StringField(label='Project Title',validators=[DataRequired()])
     project_description=TextAreaField(label='Project Description',validators=[DataRequired()])
     submit = SubmitField(label='Add project')
+    

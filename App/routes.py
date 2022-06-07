@@ -5,6 +5,7 @@ from App.models import task, admin, directeur, employee,projet
 from flask_login import login_user, logout_user, login_required, current_user
 from flask import session
 
+ROW_PER_PAGE = 7
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
@@ -75,30 +76,68 @@ def Dashboard_direc():
     inValidTasks = task.query.filter_by(projet_id=selectedProjectId, status=0).count()
     # fetch list of employees
     employeesList = employee.query.filter_by(projet_id=selectedProjectId).all()
-    form=AddProjectForm()
-    if form.validate_on_submit():
-        project=projet.query.filter_by(projet_title=form.project_title.data).first()
-        if project:
-            flash(f'the project {project} is already created')
-        else:
-            project_to_create=projet(projet_title=form.project_title.data,
-                                    projet_description=form.project_description.data,
-                                    direct_id=current_user.id)
-            db.session.add(project_to_create)
-            db.session.commit()
-            flash('the project was successfully added')
 
-    return render_template('directeur/Dashboard_direc.html',form=form,usersNumber = usersNumber,totalTasks=totalTasks,validTasks = validTasks,inValidTasks = inValidTasks,employeesList=employeesList)
+    return render_template('directeur/Dashboard_direc.html',usersNumber = usersNumber,totalTasks=totalTasks,validTasks = validTasks,inValidTasks = inValidTasks,employeesList=employeesList)
 
-@app.route('/space/<id>')
+@app.route('/space/<id>/<nextUrl>')
 @login_required
-def changeProjectSpace(id):
+def changeProjectSpace(id,nextUrl):
     # sooner i'll add middleware golabaly
     session['selected_projetc_id'] = int(id)
-    return redirect(url_for('Dashboard_direc'))
+    return redirect('/'+nextUrl)
+
+@app.route('/projet',methods=['GET', 'POST'])
+@login_required
+def projetPage():
+    form=AddProjectForm()
+    page = request.args.get('page',1,type=int)
+    projetData = projet.query.filter(projet.direct_id == current_user.id,projet.id != session.get('selected_projetc_id')).paginate(page = page,per_page=ROW_PER_PAGE)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            projetToCreate = projet(projet_title = form.project_title.data,projet_description=form.project_description.data,direct_id=current_user.id)
+            db.session.add(projetToCreate)
+            db.session.commit()
+            flash('Projet Added Succeflully!',category='success')
+            form.project_title.data = ''
+            form.project_description.data = ''
+            return redirect(url_for('projetPage'))
+    # else:
+    #     flash('Error submitting the form',category='error')
+    return render_template('directeur/Projets.html',form = form,projetData=projetData)
+
+@app.route('/actionProjet/<name>/<id>')
+@login_required
+def actionProjet(name,id):
+    if name == '':
+        flash('Invalid Action name!',category='error')
+        redirect(url_for('projetPage'))
+    if name == 'delete':
+        if request.method != 'GET':
+            flash('Error deleting projet',category='error')
+        else:
+            projetToDelete = projet.query.filter_by(id = id).first()
+            flash('Projet deleted succefully',category='info')
+            db.session.delete(projetToDelete)
+            db.session.commit()
+    return redirect(url_for('projetPage'))
+
+
+
+    
+
 
 
 #-------------------------------------------------------------------END OF DIRECTOR ROUTES
+
+
+
+
+
+
+
+
+
+
 
 
 #Admin routes
