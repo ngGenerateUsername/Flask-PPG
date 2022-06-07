@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField,TelField,TextAreaField
+from wtforms import StringField, PasswordField, SubmitField,TelField,TextAreaField,EmailField,validators
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
 from App.models import directeur
 
@@ -34,4 +34,13 @@ class AddProjectForm(FlaskForm):
     project_title=StringField(label='Project Title',validators=[DataRequired()])
     project_description=TextAreaField(label='Project Description',validators=[DataRequired()])
     submit = SubmitField(label='Add project')
+
+
+class EmployeeForm(FlaskForm):
+    firstName = StringField(label='First Name',validators=[DataRequired()]) #I'll add some messages
+    lastName = StringField(label='Last Name',validators=[DataRequired()])
+    phone = TelField(label='Phone', validators=[DataRequired()])
+    poste = StringField(label='Poste',validators=[DataRequired()])
+    email_adress = EmailField(label='Email',validators=[DataRequired(),validators.Email()])
+    submit = SubmitField(label='ADD')
     

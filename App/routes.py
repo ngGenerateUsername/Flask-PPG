@@ -1,11 +1,13 @@
 from App import app, db
-from App.forms import loginForm, RegisterForm,AddProjectForm
+from App.forms import EmployeeForm, loginForm, RegisterForm,AddProjectForm
 from flask import render_template, redirect, url_for, flash, request
 from App.models import task, admin, directeur, employee,projet
 from flask_login import login_user, logout_user, login_required, current_user
 from flask import session
+import secrets
+import string
 
-ROW_PER_PAGE = 7
+ROW_PER_PAGE = 3
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
@@ -98,11 +100,10 @@ def projetPage():
             db.session.add(projetToCreate)
             db.session.commit()
             flash('Projet Added Succeflully!',category='success')
-            form.project_title.data = ''
-            form.project_description.data = ''
             return redirect(url_for('projetPage'))
-    # else:
-    #     flash('Error submitting the form',category='error')
+        else:
+            flash('Error submitting the form',category='error')
+            
     return render_template('directeur/Projets.html',form = form,projetData=projetData)
 
 @app.route('/actionProjet/<name>/<id>')
@@ -123,7 +124,51 @@ def actionProjet(name,id):
 
 
 
-    
+@app.route('/employees',methods=['GET', 'POST'])
+@login_required
+def employeePage():
+    form=EmployeeForm()
+    page = request.args.get('page',1,type=int)
+    employeeData = employee.query.filter(employee.projet_id == session.get('selected_projetc_id')).paginate(page = page,per_page=ROW_PER_PAGE)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            #Generate password
+            alphabets = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabets) for i in range(8))
+            employeeToCreate = employee(
+                firstName=form.firstName.data,
+                lastName=form.lastName.data,
+                phone = form.phone.data,
+                poste = form.poste.data,
+                email_adress = form.email_adress.data,
+                password = password,
+                projet_id = session.get('selected_projetc_id')
+            )
+            db.session.add(employeeToCreate)
+            db.session.commit()
+            flash('Email send it to '+str(form.firstName.data+' !'),category='success')
+            return redirect(url_for('employeePage'))
+        else:
+            flash('Error submitting the form',category='error')
+            
+    return render_template('directeur/Employees.html',form = form,employeeData=employeeData)
+
+@app.route('/actionEmployee/<name>/<id>')
+@login_required
+def actionEmployee(name,id):
+    if name == '':
+        flash('Invalid Action name!',category='error')
+        redirect(url_for('employeePage'))
+    if name == 'delete':
+        if request.method != 'GET':
+            flash('Error deleting employee',category='error')
+        else:
+            employeeToDelete = employee.query.filter_by(id = id).first()
+            flash('Employee deleted succefully',category='info')
+            db.session.delete(employeeToDelete)
+            db.session.commit()
+    return redirect(url_for('employeePage'))
+ 
 
 
 
