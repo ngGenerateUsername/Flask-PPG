@@ -168,8 +168,46 @@ def actionEmployee(name,id):
             db.session.delete(employeeToDelete)
             db.session.commit()
     return redirect(url_for('employeePage'))
+
+@app.route('/employee/<id>')
+@login_required
+def getEmployeeById(id):
+
+    #verify if employee 
+    page = request.args.get('page',1,type=int)
+    try:
+        employeeDetail = employee.query.filter_by(id = id).first()
+        projetData = projet.query.filter_by(id=employeeDetail.projet_id).first()
+        projetTitle = projetData.projet_title
+    except:
+        flash('Employee not found!',category='info')
+        return redirect(url_for('employeePage')) 
+    
+    tasksData = task.query.filter_by(employee_id = id).paginate(page = page,per_page=ROW_PER_PAGE)
+    if current_user.id != projetData.direct_id:
+        flash('Acces denied!',category='info')
+        return redirect(url_for('employeePage'))
+
+
+    return render_template('directeur/Employee_detail.html',employeeDetail=employeeDetail,projetTitle=projetTitle,tasksData=tasksData)
  
 
+@app.route('/actionTask/<name>/<id>/<idEmployee>')
+@login_required
+def actionTask(name,id,idEmployee):
+    if name == '':
+        flash('Invalid Action name!',category='error')
+        redirect(url_for('getEmployeeById',id=idEmployee))
+
+    if name == 'delete':
+        if request.method != 'GET':
+            flash('Error deleting employee',category='error')
+        else:
+            taskToDelete = task.query.filter_by(id = id).first()
+            flash('Task deleted succefully',category='info')
+            db.session.delete(taskToDelete)
+            db.session.commit()
+    return redirect(url_for('getEmployeeById',id=idEmployee))
 
 
 #-------------------------------------------------------------------END OF DIRECTOR ROUTES

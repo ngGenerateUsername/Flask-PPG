@@ -67,7 +67,9 @@ Employees
                 <td>{{employee.phone}}</td>
                 <td>{{employee.poste}}</td>
                 <td>{{employee.email_adress}}</td>
-                <td><a  class="btn btn-danger" data-toggle="modal" data-target="{{'#modale'+loop.index|string}}"><i class="glyphicon glyphicon-trash"></i></a></td>
+                <td><a  class="btn btn-danger" data-toggle="modal" data-target="{{'#modale'+loop.index|string}}"><i class="glyphicon glyphicon-trash"></i></a>
+                    <a  class="btn btn-info" href="{{url_for('getEmployeeById',id=employee.id)}}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                </td>
 
                 <div class="modal fade" tabindex="-1" role="dialog" id="{{'modale'+loop.index|string}}">
                     <div class="modal-dialog" role="document">
@@ -80,7 +82,7 @@ Employees
                         </div>
                         <div class="modal-footer">
                           <a  href="{{url_for('actionEmployee',name='delete',id=employee.id)}}" class="btn btn-warning">YES</a>
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+                          <button type="button"  class="btn btn-secondary" data-dismiss="modal">NO</button>
                         </div>
                       </div>
                     </div>
