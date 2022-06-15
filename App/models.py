@@ -1,6 +1,7 @@
 from App import db, bcrypt, login_manager
 from flask_login import UserMixin
 from flask import session
+from flask import json
 
 
 @login_manager.user_loader
@@ -101,3 +102,10 @@ class task(db.Model):
     status = db.Column(db.Integer(),default=0)
     employee_id = db.Column(db.Integer(), db.ForeignKey('employee.id'))
     projet_id = db.Column(db.Integer(), db.ForeignKey('projet.id'))
+
+    def toJson(self):
+        return {"id":self.id,
+            "title":self.task_title,
+            "description":self.task_description,
+            "status":self.status
+        }
