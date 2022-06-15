@@ -33,7 +33,37 @@
 <!-- Website Overview-->
 
 <!-- Latest Users -->
-<button class="btn"><i class="glyphicon glyphicon-plus"></i></button>
+<a class="btn" data-toggle="modal" data-target="#addTask"><i class="glyphicon glyphicon-plus"></i></a>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="addTask">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center mt-4" style="font-size: 18; font-weight:bold">ADD TASK TO: {{employeeDetail.firstName}} {{employeeDetail.lastName}}</h5>
+      </div>
+      <div class="modal-body">
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <div class="form-group">
+            {{form.taskTitle.label()}}
+            {{form.taskTitle(class="form-control", placeholder="Task title")}}
+          </div>
+
+          <div class="form-group">
+            {{form.taskTitle.label()}}
+            {{form.description(class="form-control", placeholder="Task title")}}
+          </div>
+
+          <div class="modal-footer">
+         {{ form.submit(class="btn btn-success",style="background-color:#009688") }}
+        <button type="button"  class="btn btn-secondary" data-dismiss="modal">NO</button>
+      </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
 
 <div class="panel panel-default">
     <div class="panel-heading">

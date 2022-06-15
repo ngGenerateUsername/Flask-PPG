@@ -48,8 +48,7 @@
           </li>
           <li class="{{'active' if 'projet' in rule.rule}}"><a href="{{url_for('projetPage')}}">Projet</a></li>
           <li  class="{{'active' if 'employees' in rule.rule}}"><a href="{{url_for('employeePage')}}">Employees</a></li>
-          <li><a href="users.html">Tasks</a></li>
-          <li><a href="settings.html">Settings</a></li>
+    
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li><a href="#">Welcome, {{current_user.firstName+' '+current_user.lastName}}</a></li>
@@ -120,11 +119,7 @@
                 aria-hidden="true"></span>
               Empoyees
               <!-- <span class="badge">12</span></a> -->
-            <a href="users.html" class="list-group-item"><span class="glyphicon glyphicon-user"
-                aria-hidden="true"></span> tasks
-              <!-- <span class="badge">3</span></a> -->
-            <a href="settings.html" class="list-group-item"><span class="glyphicon glyphicon-wrench"
-                aria-hidden="true"></span> Settings
+
               <span class="badge"></span></a>
           </div>
         </div>

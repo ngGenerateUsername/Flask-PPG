@@ -43,4 +43,10 @@ class EmployeeForm(FlaskForm):
     poste = StringField(label='Poste',validators=[DataRequired()])
     email_adress = EmailField(label='Email',validators=[DataRequired(),validators.Email()])
     submit = SubmitField(label='ADD')
+
+class TaskForm(FlaskForm):
+    taskTitle = StringField(label='Task Title',validators=[DataRequired()])
+    description = TextAreaField(label='description',validators=[DataRequired()])
+    submit = SubmitField(label='ADD')
+
     

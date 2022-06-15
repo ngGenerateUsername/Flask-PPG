@@ -1,5 +1,5 @@
 from App import app, db
-from App.forms import EmployeeForm, loginForm, RegisterForm,AddProjectForm
+from App.forms import EmployeeForm, TaskForm, loginForm, RegisterForm,AddProjectForm
 from flask import render_template, redirect, url_for, flash, request
 from App.models import task, admin, directeur, employee,projet
 from flask_login import login_user, logout_user, login_required, current_user
@@ -169,12 +169,13 @@ def actionEmployee(name,id):
             db.session.commit()
     return redirect(url_for('employeePage'))
 
-@app.route('/employee/<id>')
+@app.route('/employee/<id>' ,methods=['GET', 'POST'])
 @login_required
 def getEmployeeById(id):
 
     #verify if employee 
     page = request.args.get('page',1,type=int)
+    form = TaskForm()
     try:
         employeeDetail = employee.query.filter_by(id = id).first()
         projetData = projet.query.filter_by(id=employeeDetail.projet_id).first()
@@ -187,21 +188,37 @@ def getEmployeeById(id):
     if current_user.id != projetData.direct_id:
         flash('Acces denied!',category='info')
         return redirect(url_for('employeePage'))
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            taskToCreate = task(
+                task_title = form.taskTitle.data,
+                task_description = form.description.data,
+                status = 0,
+                employee_id = id,
+                projet_id = session.get('selected_projetc_id')
+            )
+            db.session.add(taskToCreate)
+            db.session.commit()
+            flash('new task on the list',category='info')
+            return redirect(url_for('getEmployeeById',id=id))
+        else:
+            flash('all field required!',category='warning')
+            return redirect(url_for('getEmployeeById',id=id))
 
 
-    return render_template('directeur/Employee_detail.html',employeeDetail=employeeDetail,projetTitle=projetTitle,tasksData=tasksData)
+    return render_template('directeur/Employee_detail.html',form=form,employeeDetail=employeeDetail,projetTitle=projetTitle,tasksData=tasksData)
  
 
 @app.route('/actionTask/<name>/<id>/<idEmployee>')
 @login_required
 def actionTask(name,id,idEmployee):
     if name == '':
-        flash('Invalid Action name!',category='error')
-        redirect(url_for('getEmployeeById',id=idEmployee))
+        flash('Invalid Action name!',category='danger')
+        return redirect(url_for('getEmployeeById',id=idEmployee))
 
     if name == 'delete':
         if request.method != 'GET':
-            flash('Error deleting employee',category='error')
+            flash('Error deleting employee',category='danger')
         else:
             taskToDelete = task.query.filter_by(id = id).first()
             flash('Task deleted succefully',category='info')
