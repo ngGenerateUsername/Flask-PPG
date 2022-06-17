@@ -6,6 +6,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask import session
 import secrets
 import string
+from flask_mail import Message
+from App import mail
 
 ROW_PER_PAGE = 3
 
@@ -17,6 +19,7 @@ def login_direc():
 
     form = loginForm()
     if form.validate_on_submit():
+        session.clear()
         attempted_user = directeur.query.filter_by(username=form.username.data).first()
         if attempted_user and attempted_user.check_password_correction(attempted_password=form.password.data):
             if int(attempted_user.get_state()) == 0:
@@ -24,8 +27,11 @@ def login_direc():
                 return  render_template('directeur/Login_direc.html', form=form)
             login_user(attempted_user)
             session['user_type'] = 'directeur'
-            if attempted_user.Projects:
+            if attempted_user.Projects != []:
+                
                 session['selected_projetc_id'] = attempted_user.Projects[0].id
+            else:
+                print(attempted_user.Projects)
             flash(f'Success! Your are loged in as: {attempted_user.username} ', category='success')
             return redirect(url_for('Dashboard_direc'))
         else:
@@ -146,6 +152,11 @@ def employeePage():
             )
             db.session.add(employeeToCreate)
             db.session.commit()
+            msg = Message("New Account:",
+                  sender=current_user.firstName+"@taskTracker.com",
+                  recipients=[form.email_adress.data])
+            msg.html = "<b>Email:"+form.email_adress.data+"</b> <br> <b>Password:"+password+"</b> <br> <b>App link: click here</b>"
+            mail.send(msg)
             flash('Email send it to '+str(form.firstName.data+' !'),category='success')
             return redirect(url_for('employeePage'))
         else:
